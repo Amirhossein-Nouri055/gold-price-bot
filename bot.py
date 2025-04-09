@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 TOKEN = "7695882385:AAEulsrRvfQU562jTbNkujsiA-HP6LBTNbU"
 
 # Channel ID (numeric)
-CHANNEL_ID = " -1002346920342"
+CHANNEL_ID = "-1002346920342"
 
 # Admin Chat ID 
 ADMIN_CHAT_ID = "1451384311"
