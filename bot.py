@@ -6,18 +6,18 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-# توکن بات
+# Bot token
 TOKEN = "7695882385:AAEulsrRvfQU562jTbNkujsiA-HP6LBTNbU"
 
-# آیدی کانال (به صورت عددی)
-CHANNEL_ID = "-1002346920342"
+# Channel ID (numeric)
+CHANNEL_ID = "-1002665968223"
 
-# Chat ID ادمین 
+# Admin Chat ID 
 ADMIN_CHAT_ID = "1451384311"
 
-# تابع برای دریافت قیمت به‌روز طلا از سایت
+# Function to get current gold price from website
 def get_gold_price():
-    url = "https://www.tgju.org/profile/geram18"  # لینک صفحه قیمت طلا 18 عیار
+    url = "https://www.tgju.org/profile/geram18"  # URL for 18k gold price
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
     }
@@ -33,12 +33,12 @@ def get_gold_price():
             price_str = price_tag.text.strip().replace(",", "")
             return int(price_str), None
         else:
-            return None, "قیمت طلا پیدا نشد!"
+            return None, "Gold price not found!"
     
     except requests.exceptions.RequestException as e:
-        return None, f"خطا در دریافت قیمت: {e}"
+        return None, f"Error fetching price: {e}"
 
-# تابع برای استخراج اطلاعات از توضیحات پست
+# Function to extract product info from post caption
 def extract_product_info(caption):
     print(f"Extracting info from caption: {caption}")
     if not caption:
@@ -46,7 +46,7 @@ def extract_product_info(caption):
         return None
     
     lines = caption.split('\n')
-    name = lines[0].strip() if lines else "محصول ناشناخته"
+    name = lines[0].strip() if lines else "Unknown product"
     print(f"Product name: {name}")
     
     weight = re.search(r'وزن:\s*([\d.]+)\s*گرم', caption)
@@ -66,7 +66,7 @@ def extract_product_info(caption):
         "profit": profit
     }
 
-# تابع برای محاسبه قیمت
+# Function to calculate final price
 def calculate_price(weight, ajrat, profit, price_per_gram):
     base_price = weight * price_per_gram
     ajrat_amount = base_price * (ajrat / 100)
@@ -74,7 +74,7 @@ def calculate_price(weight, ajrat, profit, price_per_gram):
     total_price = base_price + ajrat_amount + profit_amount
     return int(total_price)
 
-# تابع برای مدیریت پست‌های جدید
+# Function to handle new posts
 async def handle_new_post(update: telegram.Update, context: telegram.ext.ContextTypes.DEFAULT_TYPE):
     print("New post detected!")
     message = update.channel_post
@@ -112,7 +112,7 @@ async def handle_new_post(update: telegram.Update, context: telegram.ext.Context
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    # ویرایش پست برای اضافه کردن دکمه
+    # Edit post to add button
     try:
         await context.bot.edit_message_caption(
             chat_id=message.chat_id,
@@ -124,7 +124,7 @@ async def handle_new_post(update: telegram.Update, context: telegram.ext.Context
     except Exception as e:
         print(f"Error editing post: {e}")
 
-# تابع برای مدیریت کلیک روی دکمه
+# Function to handle button clicks
 async def button_callback(update: telegram.Update, context: telegram.ext.ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     
@@ -151,7 +151,7 @@ async def button_callback(update: telegram.Update, context: telegram.ext.Context
         price_per_gram
     )
     
-    # نمایش قیمت در پاپ‌آپ
+    # Show price in popup
     message = (
         f"قیمت کل: {total_price // 10 :,} تومان\n"
         f"قیمت فعلی طلا (هر گرم): {price_per_gram // 10 :,} تومان"
